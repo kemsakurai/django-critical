@@ -1,9 +1,11 @@
+# -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 import hashlib
 import re
 
 from cssmin import cssmin
 
+from django.conf import settings
 from django.core.cache import cache
 from django.template import Context
 from django.template.loader import get_template
@@ -16,29 +18,30 @@ from .core import get_critical_css
 
 
 CRITICAL_CSS_RE = re.compile(
-    '{begin}(.*?){end}'.format(begin=re.escape(CRITICAL_MARK_BEGIN),
-                               end=re.escape(CRITICAL_MARK_END)),
+    r'{begin}(.*?){end}'.format(begin=re.escape(CRITICAL_MARK_BEGIN),
+                                end=re.escape(CRITICAL_MARK_END)),
     re.MULTILINE | re.DOTALL)
 ASYNC_SNIPPET_RE = re.compile(re.escape(CRITICAL_ASYNC_MARK))
 CRITICAL_KEY_RE = re.compile(
-    '{begin}(.*?){end}'.format(begin=re.escape(CRITICAL_KEY_MARK_BEGIN),
-                               end=re.escape(CRITICAL_KEY_MARK_END)))
+    r'{begin}(.*?){end}'.format(begin=re.escape(CRITICAL_KEY_MARK_BEGIN),
+                                end=re.escape(CRITICAL_KEY_MARK_END)))
 
 
 class CriticalCssMiddleware(object):
+
+    encoding = settings.CRITICAL_ENCODING
+
     def process_response(self, request, response):
-        if response.streaming:
+        if response.streaming or request.accepts('application/json'):
             return response
 
         content = response.content
-
         match = CRITICAL_CSS_RE.search(content)
 
         if not match:
             return response
 
         critical_css_fragment = match.group(1)
-
         key_match = CRITICAL_KEY_RE.search(content)
         if key_match:
             content = CRITICAL_KEY_RE.sub('', content)
@@ -57,8 +60,8 @@ class CriticalCssMiddleware(object):
             new_fragment, css_entries = cached
         else:
             css_entries = extract_css_entries(request, critical_css_fragment)
-            css = download_css(css_entries)
-            critical_css = get_critical_css(response.content, css)
+            css = download_css(css_entries, self.encoding)
+            critical_css = get_critical_css(content, css)
             critical_css = cssmin(critical_css)
             new_fragment = '<style>{css}</style>'.format(
                 css=critical_css.replace('\\', '\\\\'))
@@ -74,5 +77,5 @@ class CriticalCssMiddleware(object):
 
         content = ASYNC_SNIPPET_RE.sub(async_snippet, content)
 
-        response.content = content
+        response.content = content.encode(self.encoding)
         return response

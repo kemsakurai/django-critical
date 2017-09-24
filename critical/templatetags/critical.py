@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from django import template
 
@@ -57,6 +58,7 @@ def critical(parser, token):
 @register.simple_tag
 def critical_async():
     return CRITICAL_ASYNC_MARK
+
 
 @register.simple_tag
 def critical_key(key):

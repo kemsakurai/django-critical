@@ -1,7 +1,9 @@
+# -*- coding: utf-8 -*-
 from django.utils.six.moves import html_parser
 
 
 class CssCollectorHtmlParser(html_parser.HTMLParser):
+
     def __init__(self, content):
         html_parser.HTMLParser.__init__(self)
         self.content = content

@@ -1,1 +1,1 @@
-from .conf import CriticalConf
+# -*- coding: utf-8 -*-
