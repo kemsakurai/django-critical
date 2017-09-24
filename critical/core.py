@@ -19,7 +19,6 @@ class PenthouseCommand(object):
                 NamedTemporaryFile(mode='wb', suffix='.css') as cssfile:
             htmlfile.write(html.encode(self.encoding))
             htmlfile.flush()
-            cssfile.write(css)
             cssfile.write(css.encode(self.encoding))
             cssfile.flush()
 

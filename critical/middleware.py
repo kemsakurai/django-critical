@@ -35,7 +35,7 @@ class CriticalCssMiddleware(object):
         if response.streaming:
             return response
 
-        content = response.content
+        content = response.content.decode(self.encoding)
         match = CRITICAL_CSS_RE.search(content)
 
         if not match:
