@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 import hashlib
 import re
+import six
 
 from cssmin import cssmin
 
@@ -50,7 +51,10 @@ class CriticalCssMiddleware(object):
             key = 'default'
 
         h = hashlib.sha1()
-        h.update(critical_css_fragment)
+        if six.PY2:
+            h.update(critical_css_fragment)
+        else:
+            h.update(critical_css_fragment.encode("utf-8"))
         cache_key = 'django_critical:{hash}:{key}'.format(
             hash=h.hexdigest(), key=key)
 
