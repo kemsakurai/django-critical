@@ -66,7 +66,10 @@ class CriticalCssMiddleware(object):
             css_entries = extract_css_entries(request, critical_css_fragment)
             css = download_css(css_entries, self.encoding)
             critical_css = get_critical_css(content, css)
-            critical_css = cssmin(critical_css)
+            if six.PY2:
+                critical_css = cssmin(critical_css)
+            else:
+                critical_css = cssmin(critical_css.decode('utf-8'))
             new_fragment = '<style>{css}</style>'.format(
                 css=critical_css.replace('\\', '\\\\'))
             cache.set(cache_key, (new_fragment, css_entries))
