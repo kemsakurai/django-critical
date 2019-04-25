@@ -8,7 +8,6 @@ from cssmin import cssmin
 
 from django.conf import settings
 from django.core.cache import cache
-from django.template import Context
 from django.template.loader import get_template
 
 from .marks import (CRITICAL_MARK_BEGIN, CRITICAL_MARK_END, CRITICAL_ASYNC_MARK,
@@ -86,10 +85,10 @@ class CriticalCssMiddleware(object):
         content = CRITICAL_CSS_RE.sub(new_fragment, content)
 
         async_snippet_template = get_template('critical/async_snippet.html')
-        async_snippet = async_snippet_template.render(Context({
+        async_snippet = async_snippet_template.render({
             'critical_css_fragment': critical_css_fragment,
             'css_entries': css_entries,
-        }))
+        })
 
         content = ASYNC_SNIPPET_RE.sub(async_snippet, content)
 
