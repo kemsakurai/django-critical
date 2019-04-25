@@ -1,4 +1,4 @@
-django>=1.5.1
+django==1.11.20
 wheel==0.23.0
 django-appconf>=0.4
 cssmin>=0.2.0
