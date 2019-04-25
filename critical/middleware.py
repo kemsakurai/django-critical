@@ -17,7 +17,6 @@ from .parser import extract_css_entries
 from .util import download_css
 from .core import get_critical_css
 
-
 CRITICAL_CSS_RE = re.compile(
     r'{begin}(.*?){end}'.format(begin=re.escape(CRITICAL_MARK_BEGIN),
                                 end=re.escape(CRITICAL_MARK_END)),
@@ -31,6 +30,16 @@ CRITICAL_KEY_RE = re.compile(
 class CriticalCssMiddleware(object):
 
     encoding = settings.CRITICAL_ENCODING
+
+    def __init__(self, get_response = None):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        
+        self.process_response(request, response)
+        
+        return response    
 
     def process_response(self, request, response):
         if response.streaming:
